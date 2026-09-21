@@ -1,0 +1,37 @@
+{
+  "id": "orbitlens-local-env",
+  "name": "OrbitLens Local Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "sourceImageId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "referenceImageId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "jobId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

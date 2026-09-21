@@ -1,0 +1,375 @@
+{
+  "info": {
+    "name": "OrbitLens API",
+    "_postman_id": "orbitlens-api-collection-v1",
+    "description": "Postman test collection for OrbitLens lunar image registration orchestration API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health & Readiness",
+      "item": [
+        {
+          "name": "Liveness Probe (GET /health)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Readiness Probe (GET /ready)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ready",
+              "host": ["{{baseUrl}}"],
+              "path": ["ready"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register (POST /api/v1/auth/register)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.success) {",
+                  "  pm.environment.set('accessToken', json.data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ISRO Researcher\",\n  \"email\": \"researcher@isro.gov.in\",\n  \"password\": \"LunarRegistration2026!\",\n  \"role\": \"researcher\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login (POST /api/v1/auth/login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.success) {",
+                  "  pm.environment.set('accessToken', json.data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"researcher@isro.gov.in\",\n  \"password\": \"LunarRegistration2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token (POST /api/v1/auth/refresh)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout (POST /api/v1/auth/logout)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Profile (GET /api/v1/users/me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "me"]
+            }
+          }
+        },
+        {
+          "name": "Export Data (GET /api/v1/users/me/export)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/me/export",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "users", "me", "export"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Images",
+      "item": [
+        {
+          "name": "Request Source Upload URL (POST /api/v1/images/upload-url)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.success) {",
+                  "  pm.environment.set('sourceImageId', json.data.image._id);",
+                  "  pm.environment.set('sourceUploadUrl', json.data.uploadUrl);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"OHRC South Pole Scene\",\n  \"filename\": \"ch2_ohr_ncp_20200815T120000.tif\",\n  \"contentType\": \"image/tiff\",\n  \"sensor\": \"OHRC\",\n  \"format\": \"GEOTIFF\",\n  \"resolutionMetersPerPixel\": 0.25,\n  \"sunAzimuthDeg\": 142.5,\n  \"sunElevationDeg\": 18.2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/images/upload-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "images", "upload-url"]
+            }
+          }
+        },
+        {
+          "name": "Request Reference Upload URL (POST /api/v1/images/upload-url)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.success) {",
+                  "  pm.environment.set('referenceImageId', json.data.image._id);",
+                  "  pm.environment.set('referenceUploadUrl', json.data.uploadUrl);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TMC-2 Reference Basemap\",\n  \"filename\": \"ch2_tmc_ncp_20200920T083000.tif\",\n  \"contentType\": \"image/tiff\",\n  \"sensor\": \"TMC-2\",\n  \"format\": \"GEOTIFF\",\n  \"resolutionMetersPerPixel\": 5.0,\n  \"sunAzimuthDeg\": 110.0,\n  \"sunElevationDeg\": 24.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/images/upload-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "images", "upload-url"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Source Upload (POST /api/v1/images/:id/confirm)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileSizeBytes\": 10485760,\n  \"width\": 2048,\n  \"height\": 2048\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/images/{{sourceImageId}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "images", "{{sourceImageId}}", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Reference Upload (POST /api/v1/images/:id/confirm)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fileSizeBytes\": 10485760,\n  \"width\": 2048,\n  \"height\": 2048\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/images/{{referenceImageId}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "images", "{{referenceImageId}}", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "List Images (GET /api/v1/images)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/images?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "images"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Create Registration Job (POST /api/v1/jobs)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.success) {",
+                  "  pm.environment.set('jobId', json.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sourceImageId\": \"{{sourceImageId}}\",\n  \"referenceImageId\": \"{{referenceImageId}}\",\n  \"algorithm\": \"classical\",\n  \"transformModel\": \"homography\",\n  \"parameters\": {\n    \"coverageTargetCells\": 64,\n    \"ratioThreshold\": 0.75,\n    \"ransacReprojThreshold\": 3.0,\n    \"maxPyramidLevels\": 4,\n    \"illuminationCorrection\": true\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jobs",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "jobs"]
+            }
+          }
+        },
+        {
+          "name": "Get Job Status (GET /api/v1/jobs/:id)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jobs/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "jobs", "{{jobId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Job Metrics (GET /api/v1/jobs/:id/metrics)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jobs/{{jobId}}/metrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "jobs", "{{jobId}}", "metrics"]
+            }
+          }
+        },
+        {
+          "name": "Get Job Artifacts (GET /api/v1/jobs/:id/artifacts)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/jobs/{{jobId}}/artifacts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "jobs", "{{jobId}}", "artifacts"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Metrics",
+      "item": [
+        {
+          "name": "Get Metrics Overview (GET /api/v1/metrics/overview)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/metrics/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "metrics", "overview"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

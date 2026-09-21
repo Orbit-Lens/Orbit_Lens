@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts — one family for everything. Times New Roman is a system font: no next/font, no Google Fonts.
+     Devanagari fallbacks keep Hindi labels legible on systems where Times New Roman has no glyphs. */
+  --font-sans: "Times New Roman", Times, "Liberation Serif", "Noto Serif Devanagari", Mangal, serif;
+  --font-mono: "Times New Roman", Times, "Liberation Serif", "Noto Serif Devanagari", Mangal, serif;
+
+  /* Page and surface backgrounds — light government portal base */
+  --color-background: #f3f6fb;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #eef3fa;
+  --color-surface-tertiary: #e3eaf5;
+  --color-surface-muted: #f8fafd;
+
+  /* Navy chrome — nav bar, table headers, footer */
+  --color-navy: #0b2a5b;
+  --color-navy-dark: #071c3f;
+  --color-text-on-navy: #ffffff;
+  --color-text-on-navy-muted: #c9d6ec;
+
+  /* Borders — visible, as on official portals */
+  --color-border: #b8c2d3;
+  --color-border-light: #d5dce8;
+  --color-border-muted: #e3e8f0;
+  --color-border-input: #6b7a90;
+
+  /* Text */
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #3d4a5c;
+  --color-text-muted: #5a6678;
+  --color-text-dark: #1f2d45;
+  --color-text-darkest: #000000;
+
+  /* Primary accent — government navy blue */
+  --color-accent: #0b3b8c;
+  --color-accent-dark: #082b66;
+  --color-accent-light: #dce7f8;
+  --color-accent-muted: #eaf1fc;
+  --color-accent-foreground: #ffffff;
+  --color-link-visited: #5b2c83;
+
+  /* National colours — decorative use only (tricolour strip, active nav marker, focus ring) */
+  --color-saffron: #ff9933;
+  --color-saffron-dark: #b35400;
+  --color-saffron-light: #fff1e0;
+  --color-india-green: #138808;
+  --color-chakra: #000080;
+
+  /* Success — registration/accuracy green */
+  --color-success: #0f6b2e;
+  --color-success-dark: #0a4d21;
+  --color-success-light: #d6eddd;
+  --color-success-lightest: #eaf6ee;
+  --color-success-foreground: #0a4d21;
+
+  /* Warning — moderate accuracy / caution */
+  --color-warning: #8a5300;
+  --color-warning-fill: #e08a00;
+  --color-warning-light: #fff0cc;
+  --color-warning-foreground: #6b4100;
+
+  /* Error — failed run / low accuracy */
+  --color-error: #b3261e;
+  --color-error-light: #fbe3e1;
+  --color-error-foreground: #8c1d18;
+
+  /* Sensor badge colors */
+  --color-ohrc: #0b3b8c;
+  --color-ohrc-light: #dce7f8;
+  --color-tmc: #0f6b2e;
+  --color-tmc-light: #d6eddd;
+  --color-iirs: #6b21a8;
+  --color-iirs-light: #ebddf7;
+
+  /* Image viewer surfaces — the only dark surfaces in the app, so lunar imagery keeps its contrast */
+  --color-overlay: #0a0f1a;
+  --color-overlay-dark: #05080f;
+  --color-text-on-overlay: #f2f5fa;
+
+  /* Border radius — square, official look */
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-full: 9999px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Text size control (A- / A / A+ in the utility bar). All sizes are in rem so they scale. */
+html { font-size: 16px; }
+html[data-text-size="sm"] { font-size: 14px; }
+html[data-text-size="lg"] { font-size: 18px; }
+
+/* High contrast mode (utility bar toggle) */
+html[data-theme="contrast"] {
+  --color-background: #000000;
+  --color-surface: #000000;
+  --color-surface-secondary: #0d0d0d;
+  --color-surface-tertiary: #1a1a1a;
+  --color-navy: #000000;
+  --color-navy-dark: #000000;
+  --color-border: #ffffff;
+  --color-border-light: #ffffff;
+  --color-border-input: #ffffff;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #ffffff;
+  --color-text-muted: #f2f2f2;
+  --color-accent: #ffeb3b;
+  --color-accent-foreground: #000000;
+  --color-link-visited: #ffb3ff;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}

@@ -1,0 +1,40 @@
+# Node dependencies
+node_modules/
+
+# Python virtual environments & bytecode
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Private keys & certificates
+*.pem
+*.key
+id_rsa
+*.p12
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Large imagery & model weights
+*.img
+*.tif
+*.tiff
+*.pth
+*.onnx
+data/
+
+# Logs & test coverage
+*.log
+coverage/
+.pytest_cache/
+.DS_Store
+Thumbs.db

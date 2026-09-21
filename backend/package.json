@@ -1,0 +1,23 @@
+{
+  "name": "orbitlens-backend-root",
+  "version": "1.0.0",
+  "description": "OrbitLens Backend Root Orchestrator",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix web-backend run dev",
+    "build": "npm --prefix web-backend run build",
+    "start": "npm --prefix web-backend start",
+    "lint": "npm --prefix web-backend run lint",
+    "install:web": "npm --prefix web-backend install",
+    "dev:worker": "cd processing-service && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+    "test:worker": "cd processing-service && pytest -v tests/test_pipeline.py"
+  },
+  "keywords": [
+    "chandrayaan-2",
+    "image-registration",
+    "orbitlens",
+    "isro"
+  ],
+  "author": "",
+  "license": "ISC"
+}
