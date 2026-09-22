@@ -40,6 +40,7 @@ export const SHELL_LABELS = {
     dashboard: { en: "Dashboard", hi: "डैशबोर्ड" },
     datasets: { en: "Datasets", hi: "डेटासेट" },
     newAnalysis: { en: "New Analysis", hi: "नया विश्लेषण" },
+    results: { en: "Results", hi: "परिणाम" },
     signIn: { en: "Sign In", hi: "लॉग इन" },
     signOut: { en: "Sign Out", hi: "लॉग आउट" },
   },
@@ -73,5 +74,5 @@ export const SHELL_LABELS = {
   },
 } as const;
 
-export const SENSOR_TYPES = ["OHRC", "TMC", "IIRS"] as const;
-export type SensorType = (typeof SENSOR_TYPES)[number];
+export const SENSOR_TYPES = ["OHRC", "TMC-2", "IIRS", "LRO_NAC", "LRO_WAC", "KAGUYA", "OTHER"] as const;
+// SensorType is authoritatively defined in types/api.ts — import from there for type usage.

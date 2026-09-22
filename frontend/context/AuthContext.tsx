@@ -126,15 +126,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
 
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        return {
+          success: false,
+          error: `Backend server error (${response.status}). Please ensure the Web Backend is running on port 5000.`,
+        };
+      }
+
       const resData: ApiEnvelope<AuthResponseData> = await response.json();
 
       if (!response.ok || !resData.success || !resData.data) {
+        let errorMsg = resData.error?.message || resData.message;
+        if (Array.isArray(resData.error?.details) && resData.error.details.length > 0) {
+          errorMsg = (resData.error.details as any[])
+            .map((d) => d.message || d.field)
+            .join(". ");
+        }
         return {
           success: false,
-          error:
-            resData.error?.message ||
-            resData.message ||
-            `Authentication failed with status ${response.status}`,
+          error: errorMsg || `Authentication failed with status ${response.status}`,
         };
       }
 
@@ -167,15 +178,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify(data),
       });
 
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        return {
+          success: false,
+          error: `Backend server error (${response.status}). Please ensure the Web Backend is running on port 5000.`,
+        };
+      }
+
       const resData: ApiEnvelope<AuthResponseData> = await response.json();
 
       if (!response.ok || !resData.success || !resData.data) {
+        let errorMsg = resData.error?.message || resData.message;
+        if (Array.isArray(resData.error?.details) && resData.error.details.length > 0) {
+          errorMsg = (resData.error.details as any[])
+            .map((d) => d.message || d.field)
+            .join(". ");
+        }
         return {
           success: false,
-          error:
-            resData.error?.message ||
-            resData.message ||
-            `Registration failed with status ${response.status}`,
+          error: errorMsg || `Registration failed with status ${response.status}`,
         };
       }
 

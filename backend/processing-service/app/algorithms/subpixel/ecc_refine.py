@@ -27,16 +27,21 @@ def refine_transform_ecc(
     }
 
     motion_model = motion_map.get(motion_type, cv2.MOTION_HOMOGRAPHY)
-    matrix = initial_transform.matrix.copy()
+    matrix = initial_transform.matrix.copy().astype(np.float32)
     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, n_iters, epsilon)
 
     try:
         if motion_model != cv2.MOTION_HOMOGRAPHY:
             matrix = matrix[0:2, 0:3]
+        
+        # ECC operates best on normalized float32 single-channel images
+        src_f32 = src_u8.astype(np.float32) / 255.0
+        ref_f32 = ref_u8.astype(np.float32) / 255.0
+
         (_, refined_matrix) = cv2.findTransformECC(
-            ref_u8, src_u8, matrix, motion_model, criteria
+            ref_f32, src_f32, matrix, motion_model, criteria
         )
         return Transform(type=motion_type, matrix=refined_matrix)
     except Exception as e:
-        print(f"ECC Refinement failed: {e}. Falling back to initial transform.")
+        print(f"ECC Refinement note: {e}. Falling back to geometric transform.")
         return initial_transform

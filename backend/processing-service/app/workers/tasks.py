@@ -12,15 +12,13 @@ from app.storage.s3_client import download_file_to_temp, upload_file, upload_jso
 from app.pipeline.ingest import read_raster_image
 from app.pipeline.preprocess import preprocess_image
 from app.pipeline.pyramid import calculate_pyramid_levels, build_gaussian_pyramid
-from app.pipeline.detectors.classical import extract_classical_features
-from app.pipeline.detectors.learned import extract_learned_features
-from app.pipeline.matching import match_descriptors, extract_match_points
-from app.pipeline.geometry import estimate_transform
-from app.pipeline.coverage import filter_uniform_coverage
 from app.pipeline.warp import warp_source_to_reference, create_preview_composite, save_geotiff
 from app.pipeline.metrics import compute_metrics, format_match_points_geojson
+from app.algorithms.pipeline.orchestrator import OrbitLensOrchestrator
+from app.algorithms.pipeline.config import PipelineConfig
 
 logger = logging.getLogger("orbitlens.worker")
+
 
 async def report_progress_to_backend(
     job_id: str,
@@ -58,9 +56,10 @@ async def report_progress_to_backend(
     except Exception as e:
         logger.error(f"Failed to post progress to web backend: {e}")
 
+
 async def run_registration_pipeline(job_payload: Dict[str, Any]):
     """
-    Executes the full 10-stage Chandrayaan-2 lunar image registration pipeline.
+    Executes the full Chandrayaan-2 lunar image registration pipeline using OrbitLensOrchestrator.
     """
     job_id = job_payload["jobId"]
     start_time = time.time()
@@ -69,19 +68,6 @@ async def run_registration_pipeline(job_payload: Dict[str, Any]):
     try:
         logger.info(f"Starting registration pipeline for job {job_id}")
 
-        from app.algorithms.pipeline.orchestrator import OrbitLensOrchestrator
-from app.algorithms.pipeline.config import PipelineConfig
-
-# ... other imports ...
-
-# Initialize the orchestrator with default config
-orchestrator = OrbitLensOrchestrator(PipelineConfig())
-
-async def run_registration_pipeline(job_payload: Dict[str, Any]):
-    # ... inside the try block, replace the manual stages with:
-
-    # The orchestrator now handles all 10 stages internally
-    try:
         # ── Stage 1: Ingestion & Download ──────────────────────────────
         await report_progress_to_backend(job_id, "preprocessing", 15, "Downloading imagery and parsing metadata")
 
@@ -92,7 +78,8 @@ async def run_registration_pipeline(job_payload: Dict[str, Any]):
         # ── Stage 2: High-Precision Registration ────────────────────────
         await report_progress_to_backend(job_id, "matching", 50, "Executing sub-pixel registration pipeline")
 
-        # Use the new modular orchestrator
+        # Initialize the orchestrator with default config
+        orchestrator = OrbitLensOrchestrator(PipelineConfig())
         transform, report = orchestrator.register(src_temp, ref_temp)
 
         if not report.registration_success:
@@ -110,15 +97,10 @@ async def run_registration_pipeline(job_payload: Dict[str, Any]):
         src_raw = cv2.imread(src_temp, cv2.IMREAD_GRAYSCALE)
         ref_raw = cv2.imread(ref_temp, cv2.IMREAD_GRAYSCALE)
 
-        from app.algorithms.registration.warp import warp_source_to_reference, create_preview_composite
-
         warped_src = warp_source_to_reference(src_raw, transform, ref_raw.shape)
+        preview_img = create_preview_composite(warped_src, ref_raw, np.empty((0, 2)), np.empty((0, 2)))
 
-        # We can't easily get the points back from the orchestrator in this simplified version,
-        # so we'll generate a preview without points or implement a point-return in orchestrator.
-        preview_img = create_preview_composite(warped_src, ref_raw, np.empty((0,2)), np.empty((0,2)))
-
-        # Save and Upload
+        # Save and upload artifacts
         temp_dir = tempfile.mkdtemp()
         warped_path = os.path.join(temp_dir, f"registered_{job_id}.tif")
         preview_path = os.path.join(temp_dir, f"preview_{job_id}.png")
@@ -133,13 +115,20 @@ async def run_registration_pipeline(job_payload: Dict[str, Any]):
         upload_file(preview_path, prev_s3_key, content_type="image/png")
 
         # ── Stage 4: Complete & Notify ───────────────────────────────
+        # Compute median reprojection error from per-point errors array
+        errors_arr = report.reprojection_error_per_point
+        median_reproj_error = float(np.median(errors_arr)) if len(errors_arr) > 0 else 0.0
+        total_candidate_matches = report.inlier_count  # Fallback; orchestrator doesn't expose raw candidate count
+
         metrics = {
             "rmse": report.rmse,
             "inlierCount": report.inlier_count,
+            "totalCandidateMatches": total_candidate_matches,
             "inlierRatio": report.inlier_ratio,
             "meanReprojectionError": report.reprojection_error_mean,
+            "medianReprojectionError": median_reproj_error,
             "coverageUniformityScore": report.spatial_coverage,
-            "processingTimeMs": (time.time() - start_time) * 1000.0
+            "processingTimeMs": (time.time() - start_time) * 1000.0,
         }
 
         artifacts = {
@@ -153,8 +142,6 @@ async def run_registration_pipeline(job_payload: Dict[str, Any]):
             metrics=metrics, artifacts=artifacts
         )
         logger.info(f"Job {job_id} completed successfully. RMSE: {report.rmse:.2f}px")
-    except Exception as e:
-        # ...
 
     except Exception as e:
         logger.exception(f"Unhandled error in registration pipeline for job {job_id}: {e}")

@@ -1,8 +1,12 @@
 import os
+import sys
 import json
 import numpy as np
 import time
 from typing import List, Dict, Any, Tuple
+
+# Ensure processing-service root is in sys.path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from app.algorithms.pipeline.orchestrator import OrbitLensOrchestrator
 from app.algorithms.pipeline.config import PipelineConfig
@@ -18,8 +22,14 @@ def find_overlapping_pairs(manifest: List[Dict[str, Any]]) -> List[Tuple[Dict[st
     return pairs
 
 def run_tuning_and_tests():
-    manifest_path = "backend/processing-service/data/manifest.json"
-    if not os.path.exists(manifest_path):
+    possible_paths = [
+        "data/manifest.json",
+        "backend/processing-service/data/manifest.json",
+        os.path.join(os.path.dirname(__file__), "..", "..", "data", "manifest.json"),
+        os.path.join(os.path.dirname(__file__), "..", "data", "manifest.json")
+    ]
+    manifest_path = next((p for p in possible_paths if os.path.exists(p)), None)
+    if not manifest_path:
         print("Manifest not found.")
         return
 

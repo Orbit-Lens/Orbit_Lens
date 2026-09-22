@@ -14,12 +14,16 @@ export function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navItems = [
-    { href: "/", label: SHELL_LABELS.nav.home[language] },
-    { href: "/dashboard", label: SHELL_LABELS.nav.dashboard[language] },
-    { href: "/datasets", label: SHELL_LABELS.nav.datasets[language] },
-    { href: "/new-analysis", label: SHELL_LABELS.nav.newAnalysis[language] },
-  ];
+  const navItems = isAuthenticated
+    ? [
+        { href: "/dashboard", label: SHELL_LABELS.nav.dashboard[language] },
+        { href: "/datasets", label: SHELL_LABELS.nav.datasets[language] },
+        { href: "/new-analysis", label: SHELL_LABELS.nav.newAnalysis[language] },
+        { href: "/results", label: SHELL_LABELS.nav.results[language] },
+      ]
+    : [
+        { href: "/", label: language === "en" ? "Institutional Access" : "संस्थागत प्रवेश" },
+      ];
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
